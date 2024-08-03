@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://bxp7bfxecouc7"]
+
+[ext_resource type="Script" path="res://addons/advanced_math_grapher/advanced_math_grapher.gd" id="1_tb8ts"]
+
+[node name="AdvancedMathGrapher" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 121.0
+offset_top = 67.0
+offset_right = 977.0
+offset_bottom = 455.0
+script = ExtResource("1_tb8ts")
+formula = "1+sin(x)*(exp(0.1*x)+1)"
+debug_mode = true
