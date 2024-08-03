@@ -9,6 +9,7 @@ func _init(n: String, args: Array[MathExpression]):
 	arguments = args
 	print("Function initialized: ", name, " with ", arguments.size(), " arguments")
 
+
 func evaluate(variables: Dictionary) -> Variant:
 	var arg_vals = arguments.map(func(arg): return arg.evaluate(variables))
 	match name:

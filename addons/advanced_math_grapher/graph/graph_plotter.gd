@@ -8,6 +8,7 @@ var plot_size: Vector2
 var color: Color = Color.BLUE
 
 func plot(canvas: CanvasItem):
+	print("plot called with expression: ", expression.to_formula() if expression else "None")  # デバッグ出力
 	if not expression:
 		return
 	
@@ -20,6 +21,7 @@ func plot(canvas: CanvasItem):
 			plot_function(canvas)
 
 func plot_function(canvas: CanvasItem):
+	print("Plotting function")  # デバッグ出力
 	var points = []
 	var step = (x_range.y - x_range.x) / plot_size.x
 	
@@ -29,6 +31,8 @@ func plot_function(canvas: CanvasItem):
 		if y is float:
 			points.append(world_to_screen(Vector2(x, y)))
 	
+	print("Number of points: ", points.size())  # デバッグ出力
+
 	for i in range(1, points.size()):
 		canvas.draw_line(points[i-1], points[i], color)
 

@@ -11,16 +11,25 @@ func _init(l: MathExpression, r: MathExpression, op: String):
 	operator = op
 
 func evaluate(variables: Dictionary) -> Variant:
-	var l_val = left.evaluate(variables)
-	var r_val = right.evaluate(variables)
+	var l_val = left.evaluate(variables) if left else null
+	var r_val = right.evaluate(variables) if right else null
+	
+	if not is_valid_result(l_val) or not is_valid_result(r_val):
+		push_error("Invalid operands for binary operation: " + str(l_val) + " " + operator + " " + str(r_val))
+		return null
+	
 	match operator:
 		"+": return l_val + r_val
 		"-": return l_val - r_val
 		"*": return l_val * r_val
-		"/": return l_val / r_val if r_val != 0 else INF
+		"/": 
+			if r_val == 0:
+				push_error("Division by zero")
+				return INF
+			return l_val / r_val
 		"^": return pow(l_val, r_val)
 	push_error("Unknown operator: " + operator)
-	return 0.0
+	return null
 
 func to_formula() -> String:
 	if left == null or right == null:
@@ -33,7 +42,6 @@ func get_expression_type() -> String:
 func get_children() -> Array:
 	return [left, right] if left and right else []
 
-	
 func get_left() -> MathExpression:
 	return left
 
@@ -42,3 +50,6 @@ func get_right() -> MathExpression:
 
 func get_operator() -> String:
 	return operator
+
+func is_valid_result(result: Variant) -> bool:
+	return result is float or result is int

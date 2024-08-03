@@ -4,8 +4,10 @@ extends EditorInspectorPlugin
 const AdvancedMathGrapher = preload("res://addons/advanced_math_grapher/advanced_math_grapher.gd")
 const FormulaParser = preload("res://addons/advanced_math_grapher/math/formula_parser.gd")
 const FormulaTree = preload("res://addons/advanced_math_grapher/formula_editor/formula_tree.gd")
+const AutoResizeTextEdit = preload("res://addons/advanced_math_grapher/formula_editor/auto_resize_text_edit.gd")
+const FormulaSyntaxHighlighter = preload("res://addons/advanced_math_grapher/formula_editor/formula_syntax_highlighter.gd")
 
-var formula_edit: LineEdit
+var formula_edit: AutoResizeTextEdit
 var formula_tree: FormulaTree
 
 func _can_handle(object):
@@ -16,13 +18,17 @@ func _parse_property(object, type, name, hint_type, hint_string, usage_flags, wi
 		var vbox = VBoxContainer.new()
 		vbox.set_custom_minimum_size(Vector2(0, 300))  # 全体の高さを増加
 		
-		formula_edit = LineEdit.new()
+		formula_edit = AutoResizeTextEdit.new()
+		formula_edit.syntax_highlighter = FormulaSyntaxHighlighter.new(formula_edit)
+		formula_edit.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
+		formula_edit.custom_minimum_size.y = 60  # 初期の高さを設定
+		formula_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL  # 横幅を最大に設定
 		formula_tree = FormulaTree.new()
 		
 		vbox.add_child(formula_edit)
 		vbox.add_child(formula_tree)
 		
-		formula_edit.connect("text_submitted", Callable(self, "_on_formula_submitted").bind(object))
+		formula_edit.formula_confirmed.connect(Callable(self, "_on_formula_confirmed").bind(object))
 		formula_tree.connect("item_edited", Callable(self, "_on_item_edited").bind(object))
 		
 		add_custom_control(vbox)
@@ -33,17 +39,17 @@ func _parse_property(object, type, name, hint_type, hint_string, usage_flags, wi
 	return false
 
 func _update_formula_editor(formula: String):
-	formula_edit.text = formula
+	formula_edit.set_text(formula)  # set_textメソッドを使用
 	print("Updating formula editor with formula: ", formula)  # デバッグ出力
 	var parser = FormulaParser.new()
-	var expression = parser.parse_formula(formula)
-	if expression:
-		print("Parsed expression: ", expression.to_formula())  # デバッグ出力
-		formula_tree.build_tree(expression)
+	var result = parser.parse_formula(formula)
+	if result.expression:
+		print("Parsed expression: ", result.expression.to_formula())  # デバッグ出力
+		formula_tree.build_tree(result.expression)
 	else:
 		print("Failed to parse expression")  # デバッグ出力
 
-func _on_formula_submitted(new_text: String, object):
+func _on_formula_confirmed(new_text: String, object):
 	object.formula = new_text
 	_update_formula_editor(new_text)
 

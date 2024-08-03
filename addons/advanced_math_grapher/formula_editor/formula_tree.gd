@@ -9,7 +9,18 @@ func _ready():
 	set_column_titles_visible(true)
 	set_column_title(0, "Expression")
 	set_columns(1)
-	set_custom_minimum_size(Vector2(0, 250))  # Treeの高さを増加
+
+	# アンカーを設定
+	anchor_right = 1
+	anchor_bottom = 1
+	
+	# サイズフラグを設定
+	size_flags_vertical = SIZE_EXPAND_FILL
+	size_flags_horizontal = SIZE_EXPAND_FILL
+	
+	# 最小サイズを設定
+	custom_minimum_size = Vector2(0, 200)
+	
 	print("FormulaTree initialized")
 
 func build_tree(expression: MathExpression):
@@ -21,6 +32,7 @@ func build_tree(expression: MathExpression):
 		print("Tree built with expression: ", expression.to_formula())
 	else:
 		print("Failed to build tree: expression is null")
+
 
 
 func _add_expression_to_tree(parent: TreeItem, expression: MathExpression):

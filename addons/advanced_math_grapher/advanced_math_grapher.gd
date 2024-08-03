@@ -15,6 +15,8 @@ const GraphPlotter = preload("res://addons/advanced_math_grapher/graph/graph_plo
 
 @export var debug_mode: bool = false : set = set_debug_mode
 
+var logger = Logger.get_instance()
+
 var parsed_expression: MathExpression
 var plotter: GraphPlotter
 var parser: FormulaParser
@@ -22,15 +24,26 @@ var parser: FormulaParser
 func _init():
 	parser = FormulaParser.new()
 	plotter = GraphPlotter.new()
-	print("AdvancedMathGrapher initialized in _init()")
+	logger.info("AdvancedMathGrapher initialized in _init()")
 
-func _enter_tree():
-	print("AdvancedMathGrapher entered tree")
+func _ready():
+	logger.set_log_level(Logger.LogLevel.INFO)
+	logger.set_development_mode(OS.is_debug_build())
+	logger.info("AdvancedMathGrapher initialized")
 	if not parser:
-		print("parser initialized in _enter_tree()")
 		parser = FormulaParser.new()
 	if not plotter:
-		print("plotter initialized in _enter_tree()")
+		plotter = GraphPlotter.new()
+	logger.info("Setting initial formula in _ready")
+	call_deferred("set_formula", formula)  # 遅延呼び出しを使用
+
+func _enter_tree():
+	logger.info("AdvancedMathGrapher entered tree")
+	if not parser:
+		logger.info("parser initialized in _enter_tree()")
+		parser = FormulaParser.new()
+	if not plotter:
+		logger.info("plotter initialized in _enter_tree()")
 		plotter = GraphPlotter.new()
 
 func _process(_delta):
@@ -39,31 +52,39 @@ func _process(_delta):
 		update_graph()
 
 func _draw():
+	logger.info("_draw called")  # デバッグ出力
+	logger.info("Current formula: ", formula)  # デバッグ出力
+	logger.info("Parsed expression: ", parsed_expression.to_formula() if parsed_expression else "None")  # デバッグ出力
+	logger.info("Plotter: ", plotter)  # デバッグ出力
+	logger.info("X range: ", [x_min, " to ", x_max])  # デバッグ出力
+	logger.info("Y range: ", [y_min, " to ", y_max])  # デバッグ出力
+
 	# グラフの描画
 	if parsed_expression:
+		logger.info("Attempting to plot expression: ", parsed_expression.to_formula())  # デバッグ出力
 		plotter.plot(self)
+	else:
+		logger.info("No parsed expression to plot")  # デバッグ出力
 	_draw_axes()
 	_draw_ticks_and_labels()
 
-func _ready():
-	print("AdvancedMathGrapher _ready() called")
-	if not parser:
-		parser = FormulaParser.new()
-	if not plotter:
-		plotter = GraphPlotter.new()
-	update_graph()
-
 func set_formula(new_formula: String):
-	# 数式が変更されたときの処理
 	formula = new_formula
-	print("Setting formula to: ", formula)
+	logger.info("Setting formula to: ", formula)
 	if parser:
-		parsed_expression = parser.parse_formula(formula)
-		print("Parsed expression: ", parsed_expression.to_formula() if parsed_expression else "None")
+		logger.info("Parser exists, parsing formula")
+		var result = parser.parse_formula(formula)
+		logger.info("Parse result: ", result)
+		if result.has("expression") and result.expression != null:
+			parsed_expression = result.expression
+			parsed_expression.set_comments(result.comments)
+			logger.info("Parsed expression set: ", parsed_expression.to_formula())
+		else:
+			logger.info("Failed to parse expression, parsed_expression is null")
+			parsed_expression = null
 	else:
-		print("Parser is not initialized")
-	print("Formula set to: ", formula)
-	print("Parsed expression: ", parsed_expression.to_formula() if parsed_expression else "None")
+		logger.info("Parser is not initialized")
+	logger.info("Calling update_graph()")
 	update_graph()
 
 func set_x_min(value: float):
@@ -87,11 +108,12 @@ func set_debug_mode(enabled: bool):
 	if parser:
 		parser.set_debug_mode(enabled)
 	if debug_mode:
-		print("Debug mode enabled")
+		logger.info("Debug mode enabled")
 	else:
-		print("Debug mode disabled")
+		logger.info("Debug mode disabled")
 
 func update_graph():
+	logger.info("update_graph called")
 	if parsed_expression:
 		if not plotter:
 			plotter = GraphPlotter.new()
@@ -99,8 +121,15 @@ func update_graph():
 		plotter.x_range = Vector2(x_min, x_max)
 		plotter.y_range = Vector2(y_min, y_max)
 		plotter.plot_size = size
+		logger.info("Plotter updated with:")
+		logger.info("  Expression: ", parsed_expression.to_formula())
+		logger.info("  X range: ", plotter.x_range)
+		logger.info("  Y range: ", plotter.y_range)
+		logger.info("  Plot size: ", plotter.plot_size)
+	else:
+		logger.info("No parsed expression to update plotter")
 	queue_redraw()
-	print("Graph updated")
+	logger.info("Graph update queued")
 
 func _draw_axes():
 	# 座標軸の描画

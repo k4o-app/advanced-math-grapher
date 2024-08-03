@@ -9,11 +9,20 @@ const Function = preload("res://addons/advanced_math_grapher/math/function.gd")
 
 var debug_mode: bool = false
 
-func parse_formula(formula_str: String) -> MathExpression:
+func parse_formula(formula_str: String) -> Dictionary:
+	print("parse_formula called with: ", formula_str)
+	var result = {
+		"expression": null,
+		"comments": []
+	}
+	
 	var tokens = tokenize(formula_str)
-	var result = parse_expression(tokens)
-	if result:
-		print("Parsed formula: ", formula_str, " to expression: ", result.to_formula())
+	print("Tokenized result: ", tokens)
+	result.expression = parse_expression(tokens)
+	result.comments = extract_comments(formula_str)
+	
+	if result.expression:
+		print("Successfully parsed formula: ", formula_str, " to expression: ", result.expression.to_formula())
 	else:
 		print("Failed to parse formula: ", formula_str)
 	return result
@@ -22,19 +31,37 @@ func tokenize(formula: String) -> Array:
 	var tokens = []
 	var current_token = ""
 	var i = 0
+	var in_block_comment = false
 	while i < formula.length():
 		var char = formula[i]
+		if in_block_comment:
+			if char == '*' and i + 1 < formula.length() and formula[i + 1] == '/':
+				in_block_comment = false
+				i += 1
+			i += 1
+			continue
+		if char == '#':
+			while i < formula.length() and formula[i] != '\n':
+				i += 1
+			continue
+		if char == '/' and i + 1 < formula.length() and formula[i + 1] == '*':
+			in_block_comment = true
+			i += 2
+			continue
 		if char in "+-*/^()":
 			if current_token:
 				tokens.append(current_token)
 				current_token = ""
-			tokens.append(char)
+			# 負の数の処理
+			if char == '-' and (tokens.is_empty() or tokens[-1] in "+-*/^("):
+				current_token = char
+			else:
+				tokens.append(char)
 		elif char.is_valid_float() or char == ".":
 			current_token += char
 		elif char.is_valid_identifier():
 			if current_token and current_token.is_valid_float():
 				tokens.append(current_token)
-				tokens.append("*")  # 係数と変数の間に乗算演算子を挿入
 				current_token = ""
 			current_token += char
 		elif char == " ":
@@ -45,6 +72,45 @@ func tokenize(formula: String) -> Array:
 	if current_token:
 		tokens.append(current_token)
 	return tokens
+
+func extract_comments(formula: String) -> Array:
+	var comments = []
+	var i = 0
+	var in_block_comment = false
+	var comment_start = -1
+	while i < formula.length():
+		var char = formula[i]
+		if in_block_comment:
+			if char == '*' and i + 1 < formula.length() and formula[i + 1] == '/':
+				comments.append({
+					"type": "block",
+					"start": comment_start,
+					"end": i + 1,
+					"content": formula.substr(comment_start, i + 2 - comment_start)
+				})
+				in_block_comment = false
+				i += 1
+			i += 1
+			continue
+		if char == '#':
+			comment_start = i
+			# Find end of line
+			while i < formula.length() and formula[i] != '\n':
+				i += 1
+			comments.append({
+				"type": "inline",
+				"start": comment_start,
+				"end": i - 1,
+				"content": formula.substr(comment_start, i - comment_start)
+			})
+			continue
+		if char == '/' and i + 1 < formula.length() and formula[i + 1] == '*':
+			in_block_comment = true
+			comment_start = i
+			i += 2
+			continue
+		i += 1
+	return comments
 
 func parse_expression(tokens: Array) -> MathExpression:
 	var expr = parse_term(tokens)
@@ -80,7 +146,7 @@ func parse_factor(tokens: Array) -> MathExpression:
 			var arg = parse_expression(tokens)
 			if tokens and tokens[0] == ")":
 				tokens.pop_front()
-			return create_function(token, [arg])
+			return Function.new(token, [arg])
 	elif is_valid_float(token):
 		return Constant.new(float(token))
 	else:
@@ -90,7 +156,6 @@ func parse_factor(tokens: Array) -> MathExpression:
 	return null
 
 func is_valid_float(s: String) -> bool:
-	# 整数、小数、および指数表記をサポート
 	var regex = RegEx.new()
 	regex.compile("^-?\\d*\\.?\\d+([eE][-+]?\\d+)?$")
 	return regex.search(s) != null
@@ -104,5 +169,3 @@ func set_debug_mode(enabled: bool):
 		print("Debug mode enabled in FormulaParser")
 	else:
 		print("Debug mode disabled in FormulaParser")
-
-

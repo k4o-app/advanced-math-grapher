@@ -2,8 +2,14 @@
 extends EditorPlugin
 
 var formula_editor
+var logger
 
 func _enter_tree():
+	# Loggerの初期化と設定
+	logger = Logger.get_instance()
+	logger.set_log_level(Logger.LogLevel.DEBUG)  # 開発中はDEBUGレベルに設定
+	logger.info("Advanced Math Grapher plugin initialized")
+
 	# プラグインがエディタに読み込まれたときの処理
 	formula_editor = preload("res://addons/advanced_math_grapher/formula_editor/formula_editor.gd").new()
 	add_custom_type("AdvancedMathGrapher", "Control", preload("res://addons/advanced_math_grapher/advanced_math_grapher.gd"), preload("res://addons/advanced_math_grapher/icon.png"))

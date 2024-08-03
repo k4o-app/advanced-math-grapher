@@ -7,7 +7,12 @@ func _init(n: String):
 	name = n
 
 func evaluate(variables: Dictionary) -> Variant:
-	return variables.get(name, 0.0)
+	print("Variable.evaluate() called with name: ", name, " and variables: ", variables)  # デバッグ出力
+	if name in variables:
+		return variables[name]
+	else:
+		push_error("Variable " + name + " not found in provided variables")
+		return 0.0
 
 func to_formula() -> String:
 	return name
@@ -15,5 +20,5 @@ func to_formula() -> String:
 func get_expression_type() -> String:
 	return "Variable"
 
-func get_children() -> Array:
+func get_children() -> Array[MathExpression]:
 	return []
