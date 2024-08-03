@@ -10,21 +10,16 @@ const Function = preload("res://addons/advanced_math_grapher/math/function.gd")
 var debug_mode: bool = false
 
 func parse_formula(formula_str: String) -> Dictionary:
-	print("parse_formula called with: ", formula_str)
+
 	var result = {
 		"expression": null,
 		"comments": []
 	}
 	
 	var tokens = tokenize(formula_str)
-	print("Tokenized result: ", tokens)
 	result.expression = parse_expression(tokens)
 	result.comments = extract_comments(formula_str)
 	
-	if result.expression:
-		print("Successfully parsed formula: ", formula_str, " to expression: ", result.expression.to_formula())
-	else:
-		print("Failed to parse formula: ", formula_str)
 	return result
 
 func tokenize(formula: String) -> Array:
@@ -114,17 +109,26 @@ func extract_comments(formula: String) -> Array:
 
 func parse_expression(tokens: Array) -> MathExpression:
 	var expr = parse_term(tokens)
+	if expr == null:
+		return null
 	while tokens and tokens[0] in "+-":
 		var op = tokens.pop_front()
 		var right = parse_term(tokens)
+		if right == null:
+			return null
 		expr = BinaryOperation.new(expr, right, op)
 	return expr
 
 func parse_term(tokens: Array) -> MathExpression:
+	print("Parsing term: ", tokens)
 	var expr = parse_factor(tokens)
+	if expr == null:
+		return null
 	while tokens and tokens[0] in "*/":
 		var op = tokens.pop_front()
 		var right = parse_factor(tokens)
+		if right == null:
+			return null
 		expr = BinaryOperation.new(expr, right, op)
 	return expr
 
@@ -132,27 +136,32 @@ func parse_factor(tokens: Array) -> MathExpression:
 	if not tokens:
 		return null
 	var token = tokens.pop_front()
-	if debug_mode:
-		print("parse_factor: Processing token: ", token)
 
 	if token == "(":
 		var expr = parse_expression(tokens)
+		if expr == null:
+			return null
 		if tokens and tokens[0] == ")":
 			tokens.pop_front()
+		else:
+			return null
 		return expr
 	elif token in ["sin", "cos", "tan", "exp", "log", "sqrt", "sinh", "cosh", "tanh"]:
 		if tokens and tokens[0] == "(":
 			tokens.pop_front()
 			var arg = parse_expression(tokens)
+			if arg == null:
+				return null
 			if tokens and tokens[0] == ")":
 				tokens.pop_front()
+			else:
+				return null
 			return Function.new(token, [arg])
 	elif is_valid_float(token):
 		return Constant.new(float(token))
-	else:
+	elif token.is_valid_identifier():
 		return Variable.new(token)
 
-	push_error("Unexpected token: " + token)
 	return null
 
 func is_valid_float(s: String) -> bool:

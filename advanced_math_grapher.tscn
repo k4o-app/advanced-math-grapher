@@ -1,12 +1,15 @@
 [gd_scene load_steps=2 format=3 uid="uid://bxp7bfxecouc7"]
 
-[ext_resource type="Script" path="res://addons/advanced_math_grapher/advanced_math_grapher.gd" id="1_tb8ts"]
+[ext_resource type="Script" path="res://addons/advanced_math_grapher/core/advanced_math_grapher.gd" id="1_tb8ts"]
 
 [node name="AdvancedMathGrapher" type="Control"]
 layout_mode = 3
 anchors_preset = 0
-offset_right = 928.0
-offset_bottom = 500.0
+offset_left = 38.0
+offset_top = 75.0
+offset_right = 966.0
+offset_bottom = 575.0
 script = ExtResource("1_tb8ts")
 formula = "1+sin(x)*exp(-1) #a
 -2*exp(0.5*x)"
+debug_mode = true

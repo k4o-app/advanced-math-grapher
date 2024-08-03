@@ -4,7 +4,6 @@ extends RefCounted
 var comments: Array = []
 
 func evaluate(variables: Dictionary) -> Variant:
-	print("MathExpression.evaluate() called with variables: ", variables)  # デバッグ出力
 	push_error("MathExpression.evaluate() is not implemented")
 	return null
 

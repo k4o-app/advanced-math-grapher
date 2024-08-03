@@ -12,7 +12,7 @@ func _enter_tree():
 
 	# プラグインがエディタに読み込まれたときの処理
 	formula_editor = preload("res://addons/advanced_math_grapher/formula_editor/formula_editor.gd").new()
-	add_custom_type("AdvancedMathGrapher", "Control", preload("res://addons/advanced_math_grapher/advanced_math_grapher.gd"), preload("res://addons/advanced_math_grapher/icon.png"))
+	add_custom_type("AdvancedMathGrapher", "Control", preload("res://addons/advanced_math_grapher/core/advanced_math_grapher.gd"), preload("res://addons/advanced_math_grapher/icon.png"))
 	add_inspector_plugin(formula_editor)
 
 func _exit_tree():

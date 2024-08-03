@@ -7,7 +7,6 @@ func _init(n: String):
 	name = n
 
 func evaluate(variables: Dictionary) -> Variant:
-	print("Variable.evaluate() called with name: ", name, " and variables: ", variables)  # デバッグ出力
 	if name in variables:
 		return variables[name]
 	else:
