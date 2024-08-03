@@ -3,43 +3,30 @@ extends TextEdit
 
 class_name AutoResizeTextEdit
 
-var min_height := 30
+var min_height := 60 
 var max_height := 300
 var user_resized := false
-var resize_handle: ColorRect
+
 
 signal formula_confirmed(new_text: String)
 
 func _ready():
 	text_changed.connect(_on_text_changed)
-	resized.connect(_on_resized)
 	focus_exited.connect(_on_focus_exited)
 	focus_entered.connect(_on_focus_entered)
 	
 	# キー入力のハンドリング
 	gui_input.connect(_on_gui_input)
 	
-	# リサイズハンドルを追加
-	resize_handle = ColorRect.new()
-	resize_handle.color = Color(0.5, 0.5, 0.5, 0.5)  # 半透明のグレー
-	resize_handle.custom_minimum_size = Vector2(0, 5)  # 高さを5ピクセルに設定
-	resize_handle.mouse_default_cursor_shape = Control.CURSOR_VSIZE
-	add_child(resize_handle)
-	
-	# リサイズハンドルを下端に配置
-	resize_handle.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	resize_handle.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	
-	resize_handle.gui_input.connect(_on_resize_handle_gui_input)
-	
+	# サイズの設定を遅延させる
+	call_deferred("set_custom_minimum_size", Vector2(0, min_height))
 	# シンタックスハイライターを設定
 	syntax_highlighter = load("res://addons/advanced_math_grapher/formula_editor/formula_syntax_highlighter.gd").new(self)
+	call_deferred("adjust_height")
 
 func _on_text_changed():
 	adjust_height()
 
-func _on_resized():
-	resize_handle.size.y = 5  # リサイズハンドルの高さを維持
 
 func adjust_height():
 	var new_height = get_content_height() + 20  # 20はパディングの分

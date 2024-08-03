@@ -5,10 +5,10 @@
 [node name="AdvancedMathGrapher" type="Control"]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 38.0
-offset_top = 75.0
-offset_right = 966.0
-offset_bottom = 575.0
+offset_left = 49.0
+offset_top = 115.0
+offset_right = 977.0
+offset_bottom = 615.0
 script = ExtResource("1_tb8ts")
 formula = "1+sin(x)*exp(-1) #a
 -2*exp(0.5*x)"

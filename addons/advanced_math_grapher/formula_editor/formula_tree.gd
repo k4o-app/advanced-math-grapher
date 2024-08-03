@@ -18,8 +18,8 @@ func _ready():
 	size_flags_vertical = SIZE_EXPAND_FILL
 	size_flags_horizontal = SIZE_EXPAND_FILL
 	
-	# 最小サイズを設定
-	custom_minimum_size = Vector2(0, 200)
+	# サイズの遅延設定
+	call_deferred("set_custom_minimum_size", Vector2(0, 200))
 	
 	print("FormulaTree initialized")
 
@@ -32,8 +32,6 @@ func build_tree(expression: MathExpression):
 		print("Tree built with expression: ", expression.to_formula())
 	else:
 		print("Failed to build tree: expression is null")
-
-
 
 func _add_expression_to_tree(parent: TreeItem, expression: MathExpression):
 	if not expression:
