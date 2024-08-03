@@ -34,6 +34,7 @@ func tokenize(formula: String) -> Array:
 		elif char.is_valid_identifier():
 			if current_token and current_token.is_valid_float():
 				tokens.append(current_token)
+				tokens.append("*")  # 係数と変数の間に乗算演算子を挿入
 				current_token = ""
 			current_token += char
 		elif char == " ":
