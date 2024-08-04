@@ -3,15 +3,54 @@ extends Control
 
 class_name AdvancedMathGrapher
 
-const FormulaParser = preload("res://addons/advanced_math_grapher/math/formula_parser.gd")
-const GraphPlotter = preload("res://addons/advanced_math_grapher/graph/graph_plotter.gd")
+@export_group("Function")
+@export_multiline var formula: String = "x" : set = set_formula
+## Enter a mathematical formula. Use 'x' as the variable.
+## Supported functions: sin, cos, tan, exp, log, sqrt
 
-# プロパティの定義
-@export var formula: String = "x" : set = set_formula
+@export var enable_multiple_functions: bool = false
+@export var function_list: Array[String] = []
+
+@export_group("Graph Range")
 @export var x_min: float = -10.0 : set = set_x_min
 @export var x_max: float = 10.0 : set = set_x_max
 @export var y_min: float = -10.0 : set = set_y_min
 @export var y_max: float = 10.0 : set = set_y_max
+@export var auto_adjust_range: bool = false
+
+@export_group("Graph Style")
+@export var line_color: Color = Color.BLUE
+@export var line_width: float = 2.0
+@export var line_style: int = 0  # 0: solid, 1: dashed, 2: dotted
+@export var show_grid: bool = true
+@export var grid_color: Color = Color(0.5, 0.5, 0.5, 0.5)
+@export var axis_color: Color = Color.WHITE
+
+@export_group("Interactivity")
+@export var enable_zoom: bool = false
+@export var enable_pan: bool = false
+@export var show_value_on_hover: bool = false
+
+@export_group("Animation")
+@export var enable_animation: bool = false
+@export var animation_speed: float = 1.0
+@export var animation_parameter: String = "t"
+
+@export_group("Advanced Features")
+@export var show_derivative: bool = false
+@export var show_integral: bool = false
+@export var use_polar_coordinates: bool = false
+
+@export_group("Performance")
+@export var max_plot_points: int = 1000
+@export var optimization_level: int = 0  # 0: none, 1: medium, 2: high
+
+@export_group("Export")
+@export var export_image_path: String = ""
+@export var export_csv_path: String = ""
+
+const FormulaParser = preload("res://addons/advanced_math_grapher/math/formula_parser.gd")
+const GraphPlotter = preload("res://addons/advanced_math_grapher/graph/graph_plotter.gd")
 
 @export var debug_mode: bool = false : set = set_debug_mode
 
@@ -60,7 +99,7 @@ func _draw():
 	logger.info("Y range: ", [y_min, " to ", y_max])  # デバッグ出力
 
 	# グラフの描画
-	if parsed_expression:
+	if parsed_expression and plotter:
 		logger.info("Attempting to plot expression: ", parsed_expression.to_formula())  # デバッグ出力
 		plotter.plot(self)
 	else:
@@ -75,6 +114,7 @@ func set_formula(new_formula: String):
 		logger.info("Parser exists, parsing formula")
 		var result = parser.parse_formula(formula)
 		logger.info("Parse result: ", result)
+		print("in set_formula result: ",result);
 		if result.has("expression") and result.expression != null:
 			parsed_expression = result.expression
 			parsed_expression.set_comments(result.comments)
@@ -121,6 +161,7 @@ func update_graph():
 		plotter.x_range = Vector2(x_min, x_max)
 		plotter.y_range = Vector2(y_min, y_max)
 		plotter.plot_size = size
+		plotter.color = line_color  # 色を設定
 		logger.info("Plotter updated with:")
 		logger.info("  Expression: ", parsed_expression.to_formula())
 		logger.info("  X range: ", plotter.x_range)

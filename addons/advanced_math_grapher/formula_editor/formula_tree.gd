@@ -18,12 +18,12 @@ func _ready():
 	size_flags_vertical = SIZE_EXPAND_FILL
 	size_flags_horizontal = SIZE_EXPAND_FILL
 	
-	# サイズの遅延設定
-	call_deferred("set_custom_minimum_size", Vector2(0, 200))
+	# 最小サイズを設定
+	custom_minimum_size = Vector2(0, 200)
 	
 	print("FormulaTree initialized")
 
-func build_tree(expression: MathExpression):
+func build_tree(expression):
 	clear()
 	root = create_item()
 	root.set_text(0, "Expression")
@@ -33,7 +33,7 @@ func build_tree(expression: MathExpression):
 	else:
 		print("Failed to build tree: expression is null")
 
-func _add_expression_to_tree(parent: TreeItem, expression: MathExpression):
+func _add_expression_to_tree(parent: TreeItem, expression):
 	if not expression:
 		print("Attempted to add null expression to tree")
 		return
@@ -79,7 +79,7 @@ func _build_expression_from_item(item: TreeItem) -> MathExpression:
 		return MathExpression.new().Function.new(text, _build_expression_from_item(item.get_first_child()))
 	
 	if item.get_child_count() == 2:
-		return BinaryOperation.new(
+		return MathExpression.new().BinaryOperation.new(
 			_build_expression_from_item(item.get_first_child()),
 			_build_expression_from_item(item.get_first_child().get_next()),
 			text

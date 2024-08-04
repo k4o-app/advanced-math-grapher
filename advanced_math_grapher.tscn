@@ -5,11 +5,12 @@
 [node name="AdvancedMathGrapher" type="Control"]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 49.0
-offset_top = 115.0
-offset_right = 977.0
-offset_bottom = 615.0
+offset_left = 77.0
+offset_top = 37.0
+offset_right = 991.0
+offset_bottom = 519.0
 script = ExtResource("1_tb8ts")
 formula = "1+sin(x)*exp(-1) #a
 -2*exp(0.5*x)"
+line_color = Color(0.486275, 0.243137, 0.356863, 1)
 debug_mode = true

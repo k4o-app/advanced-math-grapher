@@ -10,6 +10,7 @@ var color: Color = Color.BLUE
 func plot(canvas: CanvasItem):
 	print("plot called with expression: ", expression.to_formula() if expression else "None")  # デバッグ出力
 	if not expression:
+		print("No expression to plot")
 		return
 	
 	match expression.get_expression_type():
@@ -28,7 +29,7 @@ func plot_function(canvas: CanvasItem):
 	for i in range(plot_size.x):
 		var x = x_range.x + i * step
 		var y = expression.evaluate({"x": x})
-		if y is float:
+		if y is float and not is_nan(y) and not is_inf(y):
 			points.append(world_to_screen(Vector2(x, y)))
 	
 	print("Number of points: ", points.size())  # デバッグ出力

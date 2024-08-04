@@ -10,13 +10,13 @@ const Function = preload("res://addons/advanced_math_grapher/math/function.gd")
 var debug_mode: bool = false
 
 func parse_formula(formula_str: String) -> Dictionary:
-
 	var result = {
 		"expression": null,
 		"comments": []
 	}
 	
 	var tokens = tokenize(formula_str)
+	print(tokens)
 	result.expression = parse_expression(tokens)
 	result.comments = extract_comments(formula_str)
 	

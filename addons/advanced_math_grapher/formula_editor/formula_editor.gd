@@ -29,9 +29,10 @@ func _parse_property(object, type, name, hint_type, hint_string, usage_flags, wi
 		vbox.add_child(formula_tree)
 		
 		formula_edit.formula_confirmed.connect(Callable(self, "_on_formula_confirmed").bind(object))
-		formula_tree.connect("item_edited", Callable(self, "_on_item_edited").bind(object))
+		formula_tree.item_edited.connect(_on_item_edited.bind(object))
+
 		
-		add_custom_control(vbox)
+		add_property_editor(name, vbox)
 		
 		_update_formula_editor(object.formula)
 		
