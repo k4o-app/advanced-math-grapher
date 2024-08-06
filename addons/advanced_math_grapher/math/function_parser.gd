@@ -1,4 +1,4 @@
-class_name FormulaParser
+class_name FunctionParser
 extends RefCounted
 
 const MathExpression = preload("res://addons/advanced_math_grapher/math/math_expression.gd")
@@ -9,37 +9,37 @@ const Function = preload("res://addons/advanced_math_grapher/math/function.gd")
 
 var debug_mode: bool = false
 
-func parse_formula(formula_str: String) -> Dictionary:
+func parse_function(function_str: String) -> Dictionary:
 	var result = {
 		"expression": null,
 		"comments": []
 	}
 	
-	var tokens = tokenize(formula_str)
+	var tokens = tokenize(function_str)
 	print(tokens)
 	result.expression = parse_expression(tokens)
-	result.comments = extract_comments(formula_str)
+	result.comments = extract_comments(function_str)
 	
 	return result
 
-func tokenize(formula: String) -> Array:
+func tokenize(function: String) -> Array:
 	var tokens = []
 	var current_token = ""
 	var i = 0
 	var in_block_comment = false
-	while i < formula.length():
-		var char = formula[i]
+	while i < function.length():
+		var char = function[i]
 		if in_block_comment:
-			if char == '*' and i + 1 < formula.length() and formula[i + 1] == '/':
+			if char == '*' and i + 1 < function.length() and function[i + 1] == '/':
 				in_block_comment = false
 				i += 1
 			i += 1
 			continue
 		if char == '#':
-			while i < formula.length() and formula[i] != '\n':
+			while i < function.length() and function[i] != '\n':
 				i += 1
 			continue
-		if char == '/' and i + 1 < formula.length() and formula[i + 1] == '*':
+		if char == '/' and i + 1 < function.length() and function[i + 1] == '*':
 			in_block_comment = true
 			i += 2
 			continue
@@ -68,20 +68,20 @@ func tokenize(formula: String) -> Array:
 		tokens.append(current_token)
 	return tokens
 
-func extract_comments(formula: String) -> Array:
+func extract_comments(function: String) -> Array:
 	var comments = []
 	var i = 0
 	var in_block_comment = false
 	var comment_start = -1
-	while i < formula.length():
-		var char = formula[i]
+	while i < function.length():
+		var char = function[i]
 		if in_block_comment:
-			if char == '*' and i + 1 < formula.length() and formula[i + 1] == '/':
+			if char == '*' and i + 1 < function.length() and function[i + 1] == '/':
 				comments.append({
 					"type": "block",
 					"start": comment_start,
 					"end": i + 1,
-					"content": formula.substr(comment_start, i + 2 - comment_start)
+					"content": function.substr(comment_start, i + 2 - comment_start)
 				})
 				in_block_comment = false
 				i += 1
@@ -90,16 +90,16 @@ func extract_comments(formula: String) -> Array:
 		if char == '#':
 			comment_start = i
 			# Find end of line
-			while i < formula.length() and formula[i] != '\n':
+			while i < function.length() and function[i] != '\n':
 				i += 1
 			comments.append({
 				"type": "inline",
 				"start": comment_start,
 				"end": i - 1,
-				"content": formula.substr(comment_start, i - comment_start)
+				"content": function.substr(comment_start, i - comment_start)
 			})
 			continue
-		if char == '/' and i + 1 < formula.length() and formula[i + 1] == '*':
+		if char == '/' and i + 1 < function.length() and function[i + 1] == '*':
 			in_block_comment = true
 			comment_start = i
 			i += 2
@@ -175,6 +175,6 @@ func create_function(name: String, args: Array[MathExpression]) -> Function:
 func set_debug_mode(enabled: bool):
 	debug_mode = enabled
 	if debug_mode:
-		print("Debug mode enabled in FormulaParser")
+		print("Debug mode enabled in FunctionParser")
 	else:
-		print("Debug mode disabled in FormulaParser")
+		print("Debug mode disabled in FunctionParser")

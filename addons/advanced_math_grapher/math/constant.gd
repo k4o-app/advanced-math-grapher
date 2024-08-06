@@ -9,7 +9,7 @@ func _init(v: float):
 func evaluate(_variables: Dictionary) -> Variant:
 	return value
 
-func to_formula() -> String:
+func to_function() -> String:
 	return str(value)
 
 func get_expression_type() -> String:

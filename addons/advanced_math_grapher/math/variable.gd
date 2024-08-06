@@ -13,7 +13,7 @@ func evaluate(variables: Dictionary) -> Variant:
 		push_error("Variable " + name + " not found in provided variables")
 		return 0.0
 
-func to_formula() -> String:
+func to_function() -> String:
 	return name
 
 func get_expression_type() -> String:

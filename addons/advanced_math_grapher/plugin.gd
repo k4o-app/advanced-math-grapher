@@ -1,7 +1,9 @@
 @tool
 extends EditorPlugin
 
-var formula_editor
+const Logger = preload("res://addons/advanced_math_grapher/utils/logger.gd")
+var inspector_plugin
+
 var logger
 
 func _enter_tree():
@@ -10,16 +12,15 @@ func _enter_tree():
 	logger.set_log_level(Logger.LogLevel.DEBUG)  # 開発中はDEBUGレベルに設定
 	logger.info("Advanced Math Grapher plugin initialized")
 
-	# プラグインがエディタに読み込まれたときの処理
-	formula_editor = preload("res://addons/advanced_math_grapher/formula_editor/formula_editor.gd").new()
+	inspector_plugin = preload("res://addons/advanced_math_grapher/advanced_math_grapher_inspector_plugin.gd").new()
+
 	add_custom_type("AdvancedMathGrapher", "Control", preload("res://addons/advanced_math_grapher/core/advanced_math_grapher.gd"), preload("res://addons/advanced_math_grapher/icon.png"))
-	add_inspector_plugin(formula_editor)
+	add_inspector_plugin(inspector_plugin)
 
 func _exit_tree():
-	# プラグインがエディタから削除されたときの処理
 	remove_custom_type("AdvancedMathGrapher")
-	remove_inspector_plugin(formula_editor)
-	formula_editor.free()
+	remove_inspector_plugin(inspector_plugin)
+	inspector_plugin.free()
 
 func _has_main_screen():
 	return false

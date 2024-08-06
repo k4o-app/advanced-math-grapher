@@ -1,8 +1,10 @@
 @tool
 extends SyntaxHighlighter
 
+class_name FunctionSyntaxHighlighter
+
 const MathExpression = preload("res://addons/advanced_math_grapher/math/math_expression.gd")
-const FormulaParser = preload("res://addons/advanced_math_grapher/math/formula_parser.gd")
+const FunctionParser = preload("res://addons/advanced_math_grapher/math/function_parser.gd")
 
 var number_color: Color = Color(0.63, 0.86, 0.95)  # 水色
 var function_color: Color = Color(0.96, 0.76, 0.05)  # 黄色
@@ -12,16 +14,16 @@ var parenthesis_color: Color = Color(1.0, 1.0, 1.0)  # 白色
 var comment_color: Color = Color(0.5, 0.5, 0.5)  # グレー
 
 var text_edit: TextEdit
-var parser: FormulaParser
+var parser: FunctionParser
 
 func _init(text_edit: TextEdit):
 	self.text_edit = text_edit
-	self.parser = FormulaParser.new()
+	self.parser = FunctionParser.new()
 
 func _get_line_syntax_highlighting(line: int) -> Dictionary:
 	var highlighting = {}
 	var text = text_edit.text  # 全テキストを取得
-	var result = parser.parse_formula(text)
+	var result = parser.parse_function(text)
 	
 	if result.expression:
 		_highlight_expression(result.expression, highlighting, text, 0)

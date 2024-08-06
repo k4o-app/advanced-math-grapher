@@ -11,8 +11,8 @@ func _init(x: MathExpression, y: MathExpression):
 func evaluate(variables: Dictionary) -> Variant:
 	return Vector2(x_expr.evaluate(variables), y_expr.evaluate(variables))
 
-func to_formula() -> String:
-	return "(" + x_expr.to_formula() + ", " + y_expr.to_formula() + ")"
+func to_function() -> String:
+	return "(" + x_expr.to_function() + ", " + y_expr.to_function() + ")"
 
 func get_expression_type() -> String:
 	return "ParametricFunction"

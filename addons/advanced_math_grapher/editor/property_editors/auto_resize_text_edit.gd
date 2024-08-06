@@ -8,7 +8,7 @@ var max_height := 300
 var user_resized := false
 
 
-signal formula_confirmed(new_text: String)
+signal function_confirmed(new_text: String)
 
 func _ready():
 	text_changed.connect(_on_text_changed)
@@ -21,7 +21,7 @@ func _ready():
 	# サイズの設定を遅延させる
 	call_deferred("set_custom_minimum_size", Vector2(0, min_height))
 	# シンタックスハイライターを設定
-	syntax_highlighter = load("res://addons/advanced_math_grapher/formula_editor/formula_syntax_highlighter.gd").new(self)
+	syntax_highlighter = load("res://addons/advanced_math_grapher/function_editor/function_syntax_highlighter.gd").new(self)
 	call_deferred("adjust_height")
 
 func _on_text_changed():
@@ -43,7 +43,7 @@ func _on_gui_input(event: InputEvent):
 			if event.shift_pressed:
 				insert_text_at_caret("\n")
 			else:
-				emit_signal("formula_confirmed", text)
+				emit_signal("function_confirmed", text)
 			accept_event()
 
 func _on_resize_handle_gui_input(event: InputEvent):
@@ -71,7 +71,7 @@ func resizing(event: InputEventMouseMotion):
 	size.y = new_height
 
 func _on_focus_exited():
-	emit_signal("formula_confirmed", text)
+	emit_signal("function_confirmed", text)
 
 func _on_focus_entered():
 	adjust_height()

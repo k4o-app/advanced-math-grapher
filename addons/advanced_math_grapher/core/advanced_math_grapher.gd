@@ -4,9 +4,9 @@ extends Control
 class_name AdvancedMathGrapher
 
 @export_group("Function")
-@export_multiline var formula: String = "x" : set = set_formula
-## Enter a mathematical formula. Use 'x' as the variable.
+## Enter a mathematical function. Use 'x' as the variable.
 ## Supported functions: sin, cos, tan, exp, log, sqrt
+@export_multiline var function: String = "x" : set = set_function
 
 @export var enable_multiple_functions: bool = false
 @export var function_list: Array[String] = []
@@ -19,9 +19,9 @@ class_name AdvancedMathGrapher
 @export var auto_adjust_range: bool = false
 
 @export_group("Graph Style")
-@export var line_color: Color = Color.BLUE
-@export var line_width: float = 2.0
-@export var line_style: int = 0  # 0: solid, 1: dashed, 2: dotted
+@export var line_color: Color = Color.BLUE : set = set_line_color
+@export var line_width: float = 2.0 : set = set_line_width
+@export var line_style: int = 0 : set = set_line_style  # 0: solid, 1: dashed, 2: dotted
 @export var show_grid: bool = true
 @export var grid_color: Color = Color(0.5, 0.5, 0.5, 0.5)
 @export var axis_color: Color = Color.WHITE
@@ -49,7 +49,7 @@ class_name AdvancedMathGrapher
 @export var export_image_path: String = ""
 @export var export_csv_path: String = ""
 
-const FormulaParser = preload("res://addons/advanced_math_grapher/math/formula_parser.gd")
+const FunctionParser = preload("res://addons/advanced_math_grapher/math/function_parser.gd")
 const GraphPlotter = preload("res://addons/advanced_math_grapher/graph/graph_plotter.gd")
 
 @export var debug_mode: bool = false : set = set_debug_mode
@@ -58,10 +58,10 @@ var logger = Logger.get_instance()
 
 var parsed_expression: MathExpression
 var plotter: GraphPlotter
-var parser: FormulaParser
+var parser: FunctionParser
 
 func _init():
-	parser = FormulaParser.new()
+	parser = FunctionParser.new()
 	plotter = GraphPlotter.new()
 	logger.info("AdvancedMathGrapher initialized in _init()")
 
@@ -70,17 +70,17 @@ func _ready():
 	logger.set_development_mode(OS.is_debug_build())
 	logger.info("AdvancedMathGrapher initialized")
 	if not parser:
-		parser = FormulaParser.new()
+		parser = FunctionParser.new()
 	if not plotter:
 		plotter = GraphPlotter.new()
-	logger.info("Setting initial formula in _ready")
-	call_deferred("set_formula", formula)  # 遅延呼び出しを使用
+	logger.info("Setting initial function in _ready")
+	call_deferred("set_function", function)  # 遅延呼び出しを使用
 
 func _enter_tree():
 	logger.info("AdvancedMathGrapher entered tree")
 	if not parser:
 		logger.info("parser initialized in _enter_tree()")
-		parser = FormulaParser.new()
+		parser = FunctionParser.new()
 	if not plotter:
 		logger.info("plotter initialized in _enter_tree()")
 		plotter = GraphPlotter.new()
@@ -92,33 +92,33 @@ func _process(_delta):
 
 func _draw():
 	logger.info("_draw called")  # デバッグ出力
-	logger.info("Current formula: ", formula)  # デバッグ出力
-	logger.info("Parsed expression: ", parsed_expression.to_formula() if parsed_expression else "None")  # デバッグ出力
+	logger.info("Current function: ", function)  # デバッグ出力
+	logger.info("Parsed expression: ", parsed_expression.to_function() if parsed_expression else "None")  # デバッグ出力
 	logger.info("Plotter: ", plotter)  # デバッグ出力
 	logger.info("X range: ", [x_min, " to ", x_max])  # デバッグ出力
 	logger.info("Y range: ", [y_min, " to ", y_max])  # デバッグ出力
 
 	# グラフの描画
 	if parsed_expression and plotter:
-		logger.info("Attempting to plot expression: ", parsed_expression.to_formula())  # デバッグ出力
+		logger.info("Attempting to plot expression: ", parsed_expression.to_function())  # デバッグ出力
 		plotter.plot(self)
 	else:
 		logger.info("No parsed expression to plot")  # デバッグ出力
 	_draw_axes()
 	_draw_ticks_and_labels()
 
-func set_formula(new_formula: String):
-	formula = new_formula
-	logger.info("Setting formula to: ", formula)
+func set_function(new_function: String):
+	function = new_function
+	logger.info("Setting function to: ", function)
 	if parser:
-		logger.info("Parser exists, parsing formula")
-		var result = parser.parse_formula(formula)
+		logger.info("Parser exists, parsing function")
+		var result = parser.parse_function(function)
 		logger.info("Parse result: ", result)
-		print("in set_formula result: ",result);
+		print("in set_function result: ",result);
 		if result.has("expression") and result.expression != null:
 			parsed_expression = result.expression
 			parsed_expression.set_comments(result.comments)
-			logger.info("Parsed expression set: ", parsed_expression.to_formula())
+			logger.info("Parsed expression set: ", parsed_expression.to_function())
 		else:
 			logger.info("Failed to parse expression, parsed_expression is null")
 			parsed_expression = null
@@ -143,6 +143,19 @@ func set_y_max(value: float):
 	y_max = value
 	update_graph()
 
+# セッター関数の追加
+func set_line_color(value: Color):
+	line_color = value
+	update_graph()
+
+func set_line_width(value: float):
+	line_width = value
+	update_graph()
+
+func set_line_style(value: int):
+	line_style = value
+	update_graph()
+	
 func set_debug_mode(enabled: bool):
 	debug_mode = enabled
 	if parser:
@@ -161,12 +174,17 @@ func update_graph():
 		plotter.x_range = Vector2(x_min, x_max)
 		plotter.y_range = Vector2(y_min, y_max)
 		plotter.plot_size = size
-		plotter.color = line_color  # 色を設定
+		plotter.line_color = line_color
+		plotter.line_width = line_width
+		plotter.line_style = line_style
 		logger.info("Plotter updated with:")
-		logger.info("  Expression: ", parsed_expression.to_formula())
+		logger.info("  Expression: ", parsed_expression.to_function())
 		logger.info("  X range: ", plotter.x_range)
 		logger.info("  Y range: ", plotter.y_range)
 		logger.info("  Plot size: ", plotter.plot_size)
+		logger.info("  Line color: ", plotter.line_color)
+		logger.info("  Line width: ", plotter.line_width)
+		logger.info("  Line style: ", plotter.line_style)
 	else:
 		logger.info("No parsed expression to update plotter")
 	queue_redraw()

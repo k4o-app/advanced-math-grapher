@@ -21,7 +21,7 @@ func _ready():
 	# 最小サイズを設定
 	custom_minimum_size = Vector2(0, 200)
 	
-	print("FormulaTree initialized")
+	print("FunctionTree initialized")
 
 func build_tree(expression):
 	clear()
@@ -29,7 +29,7 @@ func build_tree(expression):
 	root.set_text(0, "Expression")
 	if expression:
 		_add_expression_to_tree(root, expression)
-		print("Tree built with expression: ", expression.to_formula())
+		print("Tree built with expression: ", expression.to_function())
 	else:
 		print("Failed to build tree: expression is null")
 

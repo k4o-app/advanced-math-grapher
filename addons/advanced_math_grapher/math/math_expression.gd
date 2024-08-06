@@ -7,8 +7,8 @@ func evaluate(variables: Dictionary) -> Variant:
 	push_error("MathExpression.evaluate() is not implemented")
 	return null
 
-func to_formula() -> String:
-	push_error("MathExpression.to_formula() is not implemented")
+func to_function() -> String:
+	push_error("MathExpression.to_function() is not implemented")
 	return ""
 
 func get_expression_type() -> String:

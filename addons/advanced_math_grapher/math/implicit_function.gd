@@ -9,8 +9,8 @@ func _init(e: MathExpression):
 func evaluate(variables: Dictionary) -> Variant:
 	return expr.evaluate(variables)
 
-func to_formula() -> String:
-	return expr.to_formula() + " = 0"
+func to_function() -> String:
+	return expr.to_function() + " = 0"
 
 func get_expression_type() -> String:
 	return "ImplicitFunction"

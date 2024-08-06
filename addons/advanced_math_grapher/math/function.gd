@@ -43,8 +43,8 @@ func evaluate(variables: Dictionary) -> Variant:
 	
 	return result
 
-func to_formula() -> String:
-	var args_str = ", ".join(arguments.map(func(arg): return arg.to_formula()))
+func to_function() -> String:
+	var args_str = ", ".join(arguments.map(func(arg): return arg.to_function()))
 	return name + "(" + args_str + ")"
 
 func get_expression_type() -> String:

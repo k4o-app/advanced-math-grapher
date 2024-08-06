@@ -43,10 +43,10 @@ func evaluate(variables: Dictionary) -> Variant:
 	
 	return result
 
-func to_formula() -> String:
+func to_function() -> String:
 	if left == null or right == null:
 		return "Invalid Expression"
-	return "(" + left.to_formula() + " " + operator + " " + right.to_formula() + ")"
+	return "(" + left.to_function() + " " + operator + " " + right.to_function() + ")"
 
 func get_expression_type() -> String:
 	return "BinaryOperation"

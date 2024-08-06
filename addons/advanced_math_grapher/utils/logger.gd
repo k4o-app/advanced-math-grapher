@@ -11,13 +11,14 @@ enum LogLevel {
 var current_level = LogLevel.INFO
 var is_development_mode = true
 
-const ANSI_COLORS = {
-	"reset": "\u001b[0m",
-	"bold": "\u001b[1m",
-	"debug": "\u001b[36m",  # シアン
-	"info": "\u001b[32m",   # 緑
-	"warning": "\u001b[33m", # 黄
-	"error": "\u001b[31m",  # 赤
+const BB_CODES = {
+	"bold": "[b]",
+	"end_bold": "[/b]",
+	"debug": "[color=cyan]",  # シアン
+	"info": "[color=green]",   # 緑
+	"warning": "[color=yellow]", # 黄
+	"error": "[color=red]",  # 赤
+	"end_color": "[/color]",
 }
 
 static var _instance: Logger = null
@@ -56,11 +57,35 @@ func error(message: String, args = null) -> void:
 	if current_level <= LogLevel.ERROR:
 		_log("[ERROR]", message, args, "error")
 
+
 func _log(level: String, message: String, args, color: String) -> void:
-	var final_message = ANSI_COLORS[color] + ANSI_COLORS["bold"] + level + ANSI_COLORS["reset"] + " " + message
+	var stack_info = _get_stack_info()
+	message = message.replace("\n", "\\n")  # 改行を \n に置換
+
+	var final_message = BB_CODES[color] + BB_CODES["bold"] + level + BB_CODES["end_bold"]
+	final_message += " " + stack_info
+	final_message += " " + message
+	
 	if args != null:
 		final_message += " " + _format_value(args)
-	print(final_message)
+	
+	final_message += BB_CODES["end_color"]
+	print_rich(final_message)
+
+func _get_stack_info() -> String:
+	var stack = get_stack()
+	if stack.size() <= 3:
+		return "[Unknown]"
+	
+	var frame = stack[3]  # インデックス3がログを呼び出した関数のフレームになるはず
+	if frame.has("function") and frame.has("source") and frame.has("line"):
+		var function_name = frame["function"]
+		var file_name = frame["source"].get_file()
+		var line_number = frame["line"]
+		return "[%s (%s:%s)]" % [function_name, file_name, line_number]
+	else:
+		return "[Unknown]"
+
 
 func _format_value(value) -> String:
 	if value is Array:
@@ -71,6 +96,6 @@ func _format_value(value) -> String:
 			items.append(str(k) + ": " + _format_value(value[k]))
 		return "{" + ", ".join(items) + "}"
 	elif value is String:
-		return "\"" + value + "\""
+		return "\"" + value.replace("\n", "\\n") + "\""  # 文字列内の改行も \n に置換
 	else:
 		return str(value)

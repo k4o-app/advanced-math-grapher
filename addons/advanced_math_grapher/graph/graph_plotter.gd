@@ -7,8 +7,12 @@ var y_range: Vector2
 var plot_size: Vector2
 var color: Color = Color.BLUE
 
+var line_color: Color = Color.BLUE
+var line_width: float = 2.0
+var line_style: int = 0  # 0: solid, 1: dashed, 2: dotted
+
 func plot(canvas: CanvasItem):
-	print("plot called with expression: ", expression.to_formula() if expression else "None")  # デバッグ出力
+	print("plot called with expression: ", expression.to_function() if expression else "None")  # デバッグ出力
 	if not expression:
 		print("No expression to plot")
 		return
@@ -37,6 +41,17 @@ func plot_function(canvas: CanvasItem):
 	for i in range(1, points.size()):
 		canvas.draw_line(points[i-1], points[i], color)
 
+	match line_style:
+		0:  # Solid line
+			for i in range(1, points.size()):
+				canvas.draw_line(points[i-1], points[i], line_color, line_width)
+		1:  # Dashed line
+			for i in range(1, points.size()):
+				if i % 2 == 0:
+					canvas.draw_line(points[i-1], points[i], line_color, line_width)
+		2:  # Dotted line
+			for point in points:
+				canvas.draw_circle(point, line_width / 2, line_color)
 func plot_parametric(canvas: CanvasItem):
 	var points = []
 	var step = (x_range.y - x_range.x) / plot_size.x
