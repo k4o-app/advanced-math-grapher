@@ -20,8 +20,6 @@ func _ready():
 	
 	# サイズの設定を遅延させる
 	call_deferred("set_custom_minimum_size", Vector2(0, min_height))
-	# シンタックスハイライターを設定
-	syntax_highlighter = load("res://addons/advanced_math_grapher/function_editor/function_syntax_highlighter.gd").new(self)
 	call_deferred("adjust_height")
 
 func _on_text_changed():

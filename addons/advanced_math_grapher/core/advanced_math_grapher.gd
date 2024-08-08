@@ -10,6 +10,13 @@ class_name AdvancedMathGrapher
 
 @export var enable_multiple_functions: bool = false
 @export var function_list: Array[String] = []
+@export var expression_list: Array:
+	get:
+		return _expression_list
+	set(new_list):
+		_expression_list = new_list
+		update_expressions()
+var _expression_list: Array = []
 
 @export_group("Graph Range")
 @export var x_min: float = -10.0 : set = set_x_min
@@ -69,6 +76,23 @@ func _ready():
 	logger.set_log_level(Logger.LogLevel.INFO)
 	logger.set_development_mode(OS.is_debug_build())
 	logger.info("AdvancedMathGrapher initialized")
+	if _expression_list.is_empty():
+		_expression_list = [
+			{
+				"expression": "x",
+				"type": "Function",
+				"display_name": "Default Function",
+				"line_color": Color.BLUE,
+				"line_width": 2.0,
+				"line_style": "Solid",
+				"show_derivative": false,
+				"show_integral": false,
+				"visible": true
+			}
+		]
+	notify_property_list_changed()
+	update_expressions()
+
 	if not parser:
 		parser = FunctionParser.new()
 	if not plotter:
@@ -216,3 +240,15 @@ func _world_to_graph(point: Vector2) -> Vector2:
 	var x = (point.x - x_min) / (x_max - x_min) * size.x
 	var y = size.y - (point.y - y_min) / (y_max - y_min) * size.y
 	return Vector2(x, y)
+
+func update_expressions():
+	# 既存の式をクリア
+	if plotter:
+		logger.error("Nonexistent function 'clear_expressions'")
+		# plotter.clear_expressions()
+	
+	# 新しい式を追加
+	for expr in _expression_list:
+		logger.error("Nonexistent function 'add_expression'")
+		#plotter.add_expression(expr)
+	notify_property_list_changed()

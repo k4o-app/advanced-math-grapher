@@ -7,6 +7,8 @@ const FunctionTree = preload("res://addons/advanced_math_grapher/editor/ui/funct
 const AutoResizeTextEdit = preload("res://addons/advanced_math_grapher/editor/property_editors/auto_resize_text_edit.gd")
 const FunctionSyntaxHighlighter = preload("res://addons/advanced_math_grapher/editor/syntax/function_syntax_highlighter.gd")
 
+const ExpressionListEditor = preload("res://addons/advanced_math_grapher/editor/expression_list_editor.gd")
+
 var function_edit: AutoResizeTextEdit
 var function_tree: FunctionTree
 
@@ -36,6 +38,10 @@ func _parse_property(object, type, name, hint_type, hint_string, usage_flags, wi
 		
 		_update_function_editor(object.function)
 		
+		return true
+	if name == "expression_list":
+		var editor = ExpressionListEditor.new()
+		add_property_editor(name, editor)
 		return true
 	return false
 
