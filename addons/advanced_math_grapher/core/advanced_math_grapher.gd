@@ -8,8 +8,6 @@ class_name AdvancedMathGrapher
 ## Supported functions: sin, cos, tan, exp, log, sqrt
 @export_multiline var function: String = "x" : set = set_function
 
-@export var enable_multiple_functions: bool = false
-@export var function_list: Array[String] = []
 @export var expression_list: Array:
 	get:
 		return _expression_list
@@ -67,6 +65,10 @@ var parsed_expression: MathExpression
 var plotter: GraphPlotter
 var parser: FunctionParser
 
+var plotters: Array[GraphPlotter] = []
+var hover_info: Label
+var selected_function_index: int = -1
+
 func _init():
 	parser = FunctionParser.new()
 	plotter = GraphPlotter.new()
@@ -90,7 +92,12 @@ func _ready():
 				"visible": true
 			}
 		]
-	notify_property_list_changed()
+	#notify_property_list_changed()
+
+	hover_info = Label.new()
+	hover_info.visible = false
+	add_child(hover_info)
+	
 	update_expressions()
 
 	if not parser:
@@ -130,6 +137,15 @@ func _draw():
 		logger.info("No parsed expression to plot")  # デバッグ出力
 	_draw_axes()
 	_draw_ticks_and_labels()
+
+	for plotter in plotters:
+		plotter.plot(self)
+
+func _input(event):
+	if event is InputEventMouseMotion:
+		_handle_mouse_hover(event.position)
+	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_handle_mouse_click(event.position)
 
 func set_function(new_function: String):
 	function = new_function
@@ -241,14 +257,65 @@ func _world_to_graph(point: Vector2) -> Vector2:
 	var y = size.y - (point.y - y_min) / (y_max - y_min) * size.y
 	return Vector2(x, y)
 
+
+func _graph_to_world(point: Vector2) -> Vector2:
+	var x = x_min + (point.x / size.x) * (x_max - x_min)
+	var y = y_max - (point.y / size.y) * (y_max - y_min)
+	return Vector2(x, y)
+
+func _handle_mouse_hover(local_position: Vector2):
+	var closest_distance = INF
+	var closest_function_index = -1
+	var closest_point = Vector2.ZERO
+
+	for i in range(plotters.size()):
+		var plotter = plotters[i]
+		var point = plotter.get_closest_point(local_position)
+		var distance = local_position.distance_to(point)
+		if distance < closest_distance:
+			closest_distance = distance
+			closest_function_index = i
+			closest_point = point
+
+	if closest_function_index != -1 and closest_distance < 10:  # 10ピクセル以内なら表示
+		var world_point = plotters[closest_function_index].screen_to_world(closest_point)
+		hover_info.text = "f(%.2f) = %.2f" % [world_point.x, world_point.y]
+		hover_info.position = closest_point + Vector2(10, -20)  # オフセットを適用
+		hover_info.visible = true
+	else:
+		hover_info.visible = false
+
+func _handle_mouse_click(local_position: Vector2):
+	var closest_distance = INF
+	var closest_function_index = -1
+
+	for i in range(plotters.size()):
+		var plotter = plotters[i]
+		var point = plotter.get_closest_point(local_position)
+		var distance = local_position.distance_to(point)
+		if distance < closest_distance:
+			closest_distance = distance
+			closest_function_index = i
+
+	if closest_function_index != -1 and closest_distance < 10:  # 10ピクセル以内ならクリック有効
+		selected_function_index = closest_function_index
+		queue_redraw()  # 選択状態を反映するために再描画
+
+
 func update_expressions():
-	# 既存の式をクリア
-	if plotter:
-		logger.error("Nonexistent function 'clear_expressions'")
-		# plotter.clear_expressions()
-	
-	# 新しい式を追加
+	plotters.clear()
 	for expr in _expression_list:
-		logger.error("Nonexistent function 'add_expression'")
-		#plotter.add_expression(expr)
-	notify_property_list_changed()
+		var parser = FunctionParser.new()
+		var result = parser.parse_function(expr.expression)
+		if result.expression:
+			var plotter = GraphPlotter.new()
+			plotter.expression = result.expression
+			plotter.x_range = Vector2(x_min, x_max)
+			plotter.y_range = Vector2(y_min, y_max)
+			plotter.plot_size = size
+			plotter.line_color = expr.line_color
+			plotter.line_width = expr.line_width
+			plotter.line_style = expr.line_style
+			plotters.append(plotter)
+	queue_redraw()
+

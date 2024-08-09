@@ -10,8 +10,26 @@ offset_top = 87.0
 offset_right = 1019.0
 offset_bottom = 558.0
 script = ExtResource("1_tb8ts")
-function = "(x/4+2)*(x/4-2)*(x/2-2)
-"
+function = ""
+expression_list = [{
+"expression": "(x/4+2)*(x/4-2)*(x/2-2)
++1
+",
+"line_color": Color(0.713726, 0.713726, 0.905882, 1),
+"line_style": 0,
+"line_width": 2.0,
+"show_derivative": false,
+"show_integral": false,
+"visible": false
+}, {
+"expression": "x",
+"line_color": Color(0, 0, 1, 1),
+"line_style": 0,
+"line_width": 2.0,
+"show_derivative": false,
+"show_integral": false,
+"visible": false
+}]
 line_color = Color(0.376471, 0.2, 0.690196, 1)
 line_width = 11.0
 debug_mode = true

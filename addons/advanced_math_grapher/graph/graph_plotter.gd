@@ -82,5 +82,28 @@ func world_to_screen(point: Vector2) -> Vector2:
 	var y = plot_size.y - (point.y - y_range.x) / (y_range.y - y_range.x) * plot_size.y
 	return Vector2(x, y)
 
+func screen_to_world(point: Vector2) -> Vector2:
+	var x = x_range.x + (point.x / plot_size.x) * (x_range.y - x_range.x)
+	var y = y_range.y - (point.y / plot_size.y) * (y_range.y - y_range.x)
+	return Vector2(x, y)
+
+
+func get_closest_point(local_position: Vector2) -> Vector2:
+	var closest_point = Vector2.ZERO
+	var closest_distance = INF
+	var step = (x_range.y - x_range.x) / plot_size.x
+	
+	for i in range(int(plot_size.x)):
+		var x = x_range.x + i * step
+		var y = expression.evaluate({"x": x})
+		if y is float and not is_nan(y) and not is_inf(y):
+			var point = world_to_screen(Vector2(x, y))
+			var distance = point.distance_to(local_position)
+			if distance < closest_distance:
+				closest_distance = distance
+				closest_point = point
+	
+	return closest_point
+
 func update_plot_size(new_size: Vector2):
 	plot_size = new_size

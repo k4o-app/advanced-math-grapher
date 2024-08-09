@@ -1,6 +1,9 @@
 @tool
 extends EditorProperty
 
+const AutoResizeTextEdit = preload("res://addons/advanced_math_grapher/editor/property_editors/auto_resize_text_edit.gd")
+const FunctionSyntaxHighlighter = preload("res://addons/advanced_math_grapher/editor/syntax/function_syntax_highlighter.gd")
+
 var main_container: VBoxContainer
 var expression_list: VBoxContainer
 var add_button: Button
@@ -111,7 +114,7 @@ class FunctionEditor extends VBoxContainer:
 	var index_label: Label
 	var properties_container: VBoxContainer
 
-	var expression_input: LineEdit
+	var expression_input: AutoResizeTextEdit
 	var line_color_picker: ColorPickerButton
 	var line_width_spin: SpinBox
 	var line_style_option: OptionButton
@@ -151,7 +154,8 @@ class FunctionEditor extends VBoxContainer:
 		properties_container.size_flags_horizontal = SIZE_EXPAND_FILL
 		hbox.add_child(properties_container)
 		
-		_add_property("Expression", LineEdit.new(), "_on_expression_changed")
+		_add_property("Expression", AutoResizeTextEdit.new(), "_on_expression_changed")
+
 		_add_property("Line Color", ColorPickerButton.new(), "_on_color_changed")
 		_add_property("Line Width", SpinBox.new(), "_on_width_changed")
 		_add_property("Line Style", OptionButton.new(), "_on_style_changed")
@@ -176,8 +180,12 @@ class FunctionEditor extends VBoxContainer:
 		control.size_flags_horizontal = SIZE_EXPAND_FILL
 		hbox.add_child(control)
 		
-		if control is LineEdit:
+		if control is AutoResizeTextEdit:
 			expression_input = control
+			control.syntax_highlighter = FunctionSyntaxHighlighter.new(control)
+			control.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
+			control.custom_minimum_size.y = 60
+			control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		elif control is ColorPickerButton:
 			line_color_picker = control
 		elif control is SpinBox:
@@ -208,7 +216,8 @@ class FunctionEditor extends VBoxContainer:
 		index_label.text = str(index)
 
 	func set_function(function: Dictionary):
-		expression_input.text = function.get("expression", "")
+		expression_input.set_text(function.get("expression", "x"))
+
 		line_color_picker.color = function.get("line_color", Color.BLUE)
 		line_width_spin.value = function.get("line_width", 2.0)
 		line_style_option.selected = function.get("line_style", 0)
