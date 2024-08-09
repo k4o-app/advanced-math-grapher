@@ -1,19 +1,33 @@
-# ExpressionListEditor.gd
 @tool
 extends EditorProperty
 
 var expression_list_container: VBoxContainer
 var add_button: Button
 var updating = false
+var scroll_container: ScrollContainer
 
 func _init():
+	# メインのVBoxContainerを作成
 	expression_list_container = VBoxContainer.new()
 	add_child(expression_list_container)
 	
+	# "Expression List" ラベルを追加
+	var label = Label.new()
+	label.text = "Expression List"
+	expression_list_container.add_child(label)
+	
+	# ScrollContainerを作成し、VBoxContainerに追加
+	scroll_container = ScrollContainer.new()
+	scroll_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll_container.custom_minimum_size = Vector2(0, 200)  # 最小の高さを設定
+	expression_list_container.add_child(scroll_container)
+	
+	# Add Expressionボタンを作成し、VBoxContainerに追加
 	add_button = Button.new()
 	add_button.text = "Add Expression"
 	add_button.connect("pressed", Callable(self, "_on_add_expression"))
-	add_child(add_button)
+	expression_list_container.add_child(add_button)
 
 func _ready():
 	refresh_expression_list()
@@ -31,8 +45,11 @@ func update_property():
 	updating = false
 
 func refresh_expression_list():
-	for child in expression_list_container.get_children():
+	for child in scroll_container.get_children():
 		child.queue_free()
+	
+	var vbox = VBoxContainer.new()
+	scroll_container.add_child(vbox)
 	
 	var expressions = get_edited_object()[get_edited_property()]
 	if expressions == null:
@@ -42,7 +59,7 @@ func refresh_expression_list():
 		var expression_editor = ExpressionEditor.new(i)
 		expression_editor.connect("expression_changed", Callable(self, "_on_expression_changed"))
 		expression_editor.connect("expression_removed", Callable(self, "_on_expression_removed"))
-		expression_list_container.add_child(expression_editor)
+		vbox.add_child(expression_editor)
 		expression_editor.set_expression(expressions[i])
 
 func _on_add_expression():
@@ -74,7 +91,7 @@ func _on_expression_removed(index: int):
 	expressions.remove(index)
 	emit_changed(get_edited_property(), expressions)
 
-# ExpressionEditor.gd
+# ExpressionEditor class
 class ExpressionEditor extends VBoxContainer:
 	var index: int
 	var expression_input: LineEdit
@@ -99,9 +116,9 @@ class ExpressionEditor extends VBoxContainer:
 		add_child(expression_input)
 		
 		type_option = OptionButton.new()
-		type_option.add_item("Function")
-		type_option.add_item("Parametric")
-		type_option.add_item("Implicit")
+		type_option.add_item("Function", 0)
+		type_option.add_item("Parametric", 1)
+		type_option.add_item("Implicit", 2)
 		type_option.connect("item_selected", Callable(self, "_on_type_changed"))
 		add_child(type_option)
 		
@@ -121,9 +138,9 @@ class ExpressionEditor extends VBoxContainer:
 		add_child(line_width_spin)
 		
 		line_style_option = OptionButton.new()
-		line_style_option.add_item("Solid")
-		line_style_option.add_item("Dashed")
-		line_style_option.add_item("Dotted")
+		line_style_option.add_item("Solid", 0)
+		line_style_option.add_item("Dashed", 1)
+		line_style_option.add_item("Dotted", 2)
 		line_style_option.connect("item_selected", Callable(self, "_on_line_style_changed"))
 		add_child(line_style_option)
 		
@@ -196,7 +213,7 @@ class ExpressionEditor extends VBoxContainer:
 			"line_color": line_color_picker.color,
 			"line_width": line_width_spin.value,
 			"line_style": line_style_option.get_item_text(line_style_option.selected),
-			"show_derivative": show_derivative_check.pressed,
-			"show_integral": show_integral_check.pressed,
-			"visible": visible_check.pressed
+			"show_derivative": show_derivative_check.button_pressed,
+			"show_integral": show_integral_check.button_pressed,
+			"visible": visible_check.button_pressed
 		}
