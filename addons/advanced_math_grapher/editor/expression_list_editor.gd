@@ -149,11 +149,14 @@ class ExpressionEditor extends VBoxContainer:
 
 	func set_expression(expression: Dictionary):
 		expression_input.text = expression.get("expression", "")
-		type_option.selected = type_option.get_item_index(expression.get("type", "Function"))
+		type_option.select(type_option.get_item_index(expression.get("type", "Function")))
 		display_name_input.text = expression.get("display_name", "")
 		line_color_picker.color = expression.get("line_color", Color.BLUE)
 		line_width_spin.value = expression.get("line_width", 2.0)
-		line_style_option.selected = line_style_option.get_item_index(expression.get("line_style", "Solid"))
+		line_style_option.select(line_style_option.get_item_index(expression.get("line_style", "Solid")))
+		show_derivative_check.button_pressed = expression.get("show_derivative", false)
+		show_integral_check.button_pressed = expression.get("show_integral", false)
+		visible_check.button_pressed = expression.get("visible", true)
 
 	func _on_expression_input_changed(new_text: String):
 		emit_signal("expression_changed", index, get_current_expression())
