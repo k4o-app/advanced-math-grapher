@@ -4,9 +4,6 @@ extends Control
 class_name AdvancedMathGrapher
 
 @export_group("Function")
-## Enter a mathematical function. Use 'x' as the variable.
-## Supported functions: sin, cos, tan, exp, log, sqrt
-@export_multiline var function: String = "x" : set = set_function
 
 @export var expression_list: Array:
 	get:
@@ -105,7 +102,6 @@ func _ready():
 	if not plotter:
 		plotter = GraphPlotter.new()
 	logger.info("Setting initial function in _ready")
-	call_deferred("set_function", function)  # 遅延呼び出しを使用
 
 func _enter_tree():
 	logger.info("AdvancedMathGrapher entered tree")
@@ -123,7 +119,6 @@ func _process(_delta):
 
 func _draw():
 	logger.info("_draw called")  # デバッグ出力
-	logger.info("Current function: ", function)  # デバッグ出力
 	logger.info("Parsed expression: ", parsed_expression.to_function() if parsed_expression else "None")  # デバッグ出力
 	logger.info("Plotter: ", plotter)  # デバッグ出力
 	logger.info("X range: ", [x_min, " to ", x_max])  # デバッグ出力
@@ -147,25 +142,6 @@ func _input(event):
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		_handle_mouse_click(event.position)
 
-func set_function(new_function: String):
-	function = new_function
-	logger.info("Setting function to: ", function)
-	if parser:
-		logger.info("Parser exists, parsing function")
-		var result = parser.parse_function(function)
-		logger.info("Parse result: ", result)
-		print("in set_function result: ",result);
-		if result.has("expression") and result.expression != null:
-			parsed_expression = result.expression
-			parsed_expression.set_comments(result.comments)
-			logger.info("Parsed expression set: ", parsed_expression.to_function())
-		else:
-			logger.info("Failed to parse expression, parsed_expression is null")
-			parsed_expression = null
-	else:
-		logger.info("Parser is not initialized")
-	logger.info("Calling update_graph()")
-	update_graph()
 
 func set_x_min(value: float):
 	x_min = value

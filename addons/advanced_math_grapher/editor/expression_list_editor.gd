@@ -12,10 +12,6 @@ var updating: bool = false
 func _init():
 	main_container = VBoxContainer.new()
 	
-	var label = Label.new()
-	label.text = "Expression List"
-	main_container.add_child(label)
-	
 	expression_list = VBoxContainer.new()
 	main_container.add_child(expression_list)
 	
@@ -173,7 +169,7 @@ class FunctionEditor extends VBoxContainer:
 		properties_container.add_child(hbox)
 		
 		var label = Label.new()
-		label.text = property_name + ":"
+		label.text = property_name
 		label.custom_minimum_size.x = 120  # プロパティ名の幅を固定
 		hbox.add_child(label)
 		
@@ -191,7 +187,7 @@ class FunctionEditor extends VBoxContainer:
 		elif control is SpinBox:
 			line_width_spin = control
 			control.min_value = 0.1
-			control.max_value = 10.0
+			control.max_value = 200
 			control.step = 0.1
 		elif control is OptionButton:
 			line_style_option = control
