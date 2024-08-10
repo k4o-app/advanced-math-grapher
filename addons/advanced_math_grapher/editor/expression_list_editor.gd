@@ -111,6 +111,8 @@ class FunctionEditor extends VBoxContainer:
 	var properties_container: VBoxContainer
 
 	var expression_input: AutoResizeTextEdit
+	var tree_view_button: Button
+	var tree_window: Window
 	var line_color_picker: ColorPickerButton
 	var line_width_spin: SpinBox
 	var line_style_option: OptionButton
@@ -150,7 +152,13 @@ class FunctionEditor extends VBoxContainer:
 		properties_container.size_flags_horizontal = SIZE_EXPAND_FILL
 		hbox.add_child(properties_container)
 		
+		
 		_add_property("Expression", AutoResizeTextEdit.new(), "_on_expression_changed")
+		# ツリービューボタンの追加
+		tree_view_button = Button.new()
+		tree_view_button.text = "View Tree"
+		tree_view_button.connect("pressed", Callable(self, "_on_tree_view_pressed"))
+		properties_container.add_child(tree_view_button)
 
 		_add_property("Line Color", ColorPickerButton.new(), "_on_color_changed")
 		_add_property("Line Width", SpinBox.new(), "_on_width_changed")
@@ -170,11 +178,18 @@ class FunctionEditor extends VBoxContainer:
 		
 		var label = Label.new()
 		label.text = property_name
-		label.custom_minimum_size.x = 120  # プロパティ名の幅を固定
+		label.size_flags_horizontal = SIZE_EXPAND_FILL
+		label.custom_minimum_size.x = 0
 		hbox.add_child(label)
 		
 		control.size_flags_horizontal = SIZE_EXPAND_FILL
 		hbox.add_child(control)
+		
+		var hbox_stylebox = StyleBoxFlat.new()
+		hbox_stylebox.set_content_margin_all(10)
+		hbox.add_theme_stylebox_override("panel", hbox_stylebox)
+		
+		hbox.connect("resized", Callable(self, "_on_hbox_resized").bind(label, control))
 		
 		if control is AutoResizeTextEdit:
 			expression_input = control
@@ -220,6 +235,11 @@ class FunctionEditor extends VBoxContainer:
 		show_derivative_check.button_pressed = function.get("show_derivative", false)
 		show_integral_check.button_pressed = function.get("show_integral", false)
 		visible_check.button_pressed = function.get("visible", true)
+
+	func _on_hbox_resized(label: Control, control: Control):
+		var total_width = label.get_parent().size.x
+		var label_width = total_width * 0.5 - 20
+		label.custom_minimum_size.x = max(label_width, 0)
 
 	func _on_expression_changed(new_text: String):
 		emit_signal("function_changed", index, get_current_function())

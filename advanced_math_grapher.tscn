@@ -7,8 +7,8 @@ layout_mode = 3
 anchors_preset = 0
 offset_left = 60.0
 offset_top = -1.0
-offset_right = 915.0
-offset_bottom = 572.0
+offset_right = 901.0
+offset_bottom = 563.0
 script = ExtResource("1_tb8ts")
 expression_list = [{
 "expression": "x",
