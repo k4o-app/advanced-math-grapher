@@ -36,7 +36,7 @@ func evaluate(variables: Dictionary) -> Variant:
 				push_error("Division by zero")
 				return null
 			result = l_val / r_val
-		"^": result = pow(l_val, r_val)
+		"^", "**": result = pow(l_val, r_val)
 		_:
 			push_error("Unknown operator: " + operator)
 			return null

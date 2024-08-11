@@ -11,15 +11,7 @@ offset_right = 901.0
 offset_bottom = 563.0
 script = ExtResource("1_tb8ts")
 expression_list = [{
-"expression": "x*3",
-"line_color": Color(0, 0, 1, 1),
-"line_style": 0,
-"line_width": 2.0,
-"show_derivative": false,
-"show_integral": false,
-"visible": false
-}, {
-"expression": "x",
+"expression": "x**2-5",
 "line_color": Color(0, 0, 1, 1),
 "line_style": 0,
 "line_width": 2.0,

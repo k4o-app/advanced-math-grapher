@@ -50,6 +50,9 @@ func tokenize(function: String) -> Array:
 			# 負の数の処理
 			if char == '-' and (tokens.is_empty() or tokens[-1] in "+-*/^("):
 				current_token = char
+			if char == "*" and i + 1 < function.length() and function[i + 1] == "*":
+				tokens.append("**")
+				i += 1  # 追加の * をスキップ
 			else:
 				tokens.append(char)
 		elif char.is_valid_float() or char == ".":
@@ -120,15 +123,22 @@ func parse_expression(tokens: Array) -> MathExpression:
 	return expr
 
 func parse_term(tokens: Array) -> MathExpression:
-	print("Parsing term: ", tokens)
-	var expr = parse_factor(tokens)
+	var expr = parse_power(tokens)
 	if expr == null:
 		return null
 	while tokens and tokens[0] in "*/":
 		var op = tokens.pop_front()
-		var right = parse_factor(tokens)
+		var right = parse_power(tokens)
 		if right == null:
 			return null
+		expr = BinaryOperation.new(expr, right, op)
+	return expr
+
+func parse_power(tokens: Array) -> MathExpression:
+	var expr = parse_factor(tokens)
+	while tokens and tokens[0] in ["^", "**"]:
+		var op = tokens.pop_front()  # ^ 演算子を消費
+		var right = parse_factor(tokens)
 		expr = BinaryOperation.new(expr, right, op)
 	return expr
 
