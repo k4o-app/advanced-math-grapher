@@ -23,7 +23,6 @@ func _init():
 	add_child(main_container)
 	set_bottom_editor(main_container)
 
-
 func _ready():
 	refresh_expression_list()
 
@@ -31,16 +30,15 @@ func update_property():
 	var new_value = get_edited_object()[get_edited_property()]
 	if new_value == null:
 		new_value = []
-	
+
 	if updating:
 		return
-	
+
 	updating = true
 	refresh_expression_list()
 	updating = false
 
 func refresh_expression_list():
-	print("Refreshing expression list")
 	for child in expression_list.get_children():
 		child.queue_free()
 	
@@ -54,11 +52,6 @@ func refresh_expression_list():
 		function_editor.connect("function_removed", Callable(self, "_on_function_removed"))
 		expression_list.add_child(function_editor)
 		function_editor.set_function(expressions[i])
-
-	print("Expression list refreshed. New count:", expression_list.get_child_count())
-
-	# インデックスを更新
-	_update_indices()
 
 func _update_indices():
 	for i in range(expression_list.get_child_count()):
@@ -81,6 +74,7 @@ func _on_add_function():
 	})
 	
 	emit_changed(get_edited_property(), expressions)
+	refresh_expression_list()
 
 func _on_function_changed(index: int, new_function: Dictionary):
 	var expressions = get_edited_object()[get_edited_property()]
@@ -88,16 +82,11 @@ func _on_function_changed(index: int, new_function: Dictionary):
 	emit_changed(get_edited_property(), expressions)
 
 func _on_function_removed(index: int):
-	print("_on_function_removed called with index:", index)
-	var expressions = _get_edited_object()[_get_edited_property()]
-	print("Current expressions:", expressions)
+	var expressions = get_edited_object()[get_edited_property()]
 	if index >= 0 and index < expressions.size():
 		expressions.remove_at(index)
-		print("Expression removed. New expressions:", expressions)
-		emit_changed(_get_edited_property(), expressions)
+		emit_changed(get_edited_property(), expressions)
 		refresh_expression_list()
-	else:
-		print("Invalid index:", index)
 
 func _get_edited_object():
 	return get_edited_object()
@@ -125,7 +114,6 @@ class FunctionEditor extends VBoxContainer:
 	signal function_removed(index: int)
 
 	func _on_remove_pressed():
-		print("Remove button pressed for index:", index)
 		emit_signal("function_removed", index)
 
 	func _init(func_index: int):
