@@ -5,13 +5,21 @@
 [node name="AdvancedMathGrapher" type="Control"]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 60.0
-offset_top = -1.0
-offset_right = 901.0
-offset_bottom = 563.0
+offset_left = 107.0
+offset_top = 40.0
+offset_right = 948.0
+offset_bottom = 604.0
 script = ExtResource("1_tb8ts")
 expression_list = [{
 "expression": "x**2-5",
+"line_color": Color(0.439216, 0.439216, 0.717647, 1),
+"line_style": 0,
+"line_width": 11.6,
+"show_derivative": false,
+"show_integral": false,
+"visible": false
+}, {
+"expression": "x",
 "line_color": Color(0, 0, 1, 1),
 "line_style": 0,
 "line_width": 2.0,

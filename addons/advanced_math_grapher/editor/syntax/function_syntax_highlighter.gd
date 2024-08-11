@@ -61,7 +61,6 @@ func _highlight_expression(expression: MathExpression, highlighting: Dictionary,
 		"BinaryOperation":
 			expr_length += _highlight_expression(expression.get_left(), highlighting, text, start)
 			var op_str = expression.get_operator()
-			print("op_str: ", op_str)
 			var op_pos = expr_text.find(op_str, expr_length)
 			if op_pos != -1:
 				_add_highlight(highlighting, start + op_pos, start + op_pos + len(op_str), operator_color)
