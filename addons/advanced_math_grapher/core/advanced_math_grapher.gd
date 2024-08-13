@@ -66,6 +66,8 @@ var plotters: Array[GraphPlotter] = []
 var hover_info: Label
 var selected_function_index: int = -1
 
+var zoom_level: float = 1.0
+var pan_offset: Vector2 = Vector2.ZERO
 func _init():
 	parser = FunctionParser.new()
 	plotter = GraphPlotter.new()
@@ -135,13 +137,45 @@ func _draw():
 
 	for plotter in plotters:
 		plotter.plot(self)
-
 func _input(event):
-	if event is InputEventMouseMotion:
+	if event is InputEventMouseButton:
+		if event.pressed:
+			match event.button_index:
+				MOUSE_BUTTON_WHEEL_UP:
+					zoom_in(event.position)
+				MOUSE_BUTTON_WHEEL_DOWN:
+					zoom_out(event.position)
+				MOUSE_BUTTON_LEFT:
+					_handle_mouse_click(event.position)
+	elif event is InputEventMouseMotion:
+		if event.button_mask == MOUSE_BUTTON_MASK_MIDDLE:
+			pan(event.relative)
 		_handle_mouse_hover(event.position)
-	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		_handle_mouse_click(event.position)
 
+func _adjust_ranges(zoom_center: Vector2):
+	var world_center = _graph_to_world(zoom_center)
+	var new_width = (x_max - x_min) / zoom_level
+	var new_height = (y_max - y_min) / zoom_level
+	
+	x_min = world_center.x - new_width / 2 - pan_offset.x / size.x * new_width
+	x_max = world_center.x + new_width / 2 - pan_offset.x / size.x * new_width
+	y_min = world_center.y - new_height / 2 + pan_offset.y / size.y * new_height
+	y_max = world_center.y + new_height / 2 + pan_offset.y / size.y * new_height
+
+func zoom_in(center: Vector2):
+	zoom_level *= 1.1
+	_adjust_ranges(center)
+	update_graph()
+
+func zoom_out(center: Vector2):
+	zoom_level /= 1.1
+	_adjust_ranges(center)
+	update_graph()
+
+func pan(offset: Vector2):
+	pan_offset += offset
+	_adjust_ranges(Vector2.ZERO)
+	update_graph()
 
 func set_x_min(value: float):
 	x_min = value
@@ -228,15 +262,14 @@ func _draw_ticks_and_labels():
 		draw_string(font, pos - Vector2(30, 0), str(y), HORIZONTAL_ALIGNMENT_RIGHT, -1, font_size, Color.WHITE)
 
 func _world_to_graph(point: Vector2) -> Vector2:
-	# 数学的座標をグラフ上の座標に変換
 	var x = (point.x - x_min) / (x_max - x_min) * size.x
 	var y = size.y - (point.y - y_min) / (y_max - y_min) * size.y
-	return Vector2(x, y)
-
+	return Vector2(x, y) + pan_offset
 
 func _graph_to_world(point: Vector2) -> Vector2:
-	var x = x_min + (point.x / size.x) * (x_max - x_min)
-	var y = y_max - (point.y / size.y) * (y_max - y_min)
+	var adjusted_point = point - pan_offset
+	var x = x_min + (adjusted_point.x / size.x) * (x_max - x_min)
+	var y = y_max - (adjusted_point.y / size.y) * (y_max - y_min)
 	return Vector2(x, y)
 
 func _handle_mouse_hover(local_position: Vector2):
